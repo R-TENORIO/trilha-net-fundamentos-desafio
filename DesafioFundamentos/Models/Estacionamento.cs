@@ -1,10 +1,30 @@
 namespace DesafioFundamentos.Models
 {
-    public class Estacionamento
+    public class NewBaseType
+    {
+        protected List<string> veiculos = new List<string>();
+
+        public void AdicionarVeiculo()
+        {
+            Console.WriteLine("Digite a placa do veículo para estacionar:");
+            string placa = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(placa))
+            {
+                veiculos.Add(placa.ToUpper()); // Armazena em maiúsculas para padronização
+                Console.WriteLine($"Veículo com placa {placa.ToUpper()} estacionado com sucesso.");
+            }
+            else
+            {
+                Console.WriteLine("Placa inválida. Nenhum veículo foi adicionado.");
+            }
+        }
+    }
+
+    public class Estacionamento : NewBaseType
     {
         private decimal precoInicial = 0;
         private decimal precoPorHora = 0;
-        private List<string> veiculos = new List<string>();
 
         public Estacionamento(decimal precoInicial, decimal precoPorHora)
         {
@@ -12,42 +32,69 @@ namespace DesafioFundamentos.Models
             this.precoPorHora = precoPorHora;
         }
 
-        public void AdicionarVeiculo()
-        {
-            // TODO: Pedir para o usuário digitar uma placa (ReadLine) e adicionar na lista "veiculos"
-            // *IMPLEMENTE AQUI*
-            Console.WriteLine("Digite a placa do veículo para estacionar:");
-        }
-
         public void RemoverVeiculo()
         {
-            Console.WriteLine("Digite a placa do veículo para remover:");
-
-            // Pedir para o usuário digitar a placa e armazenar na variável placa
-            // *IMPLEMENTE AQUI*
-            string placa = "";
-
-            // Verifica se o veículo existe
-            if (veiculos.Any(x => x.ToUpper() == placa.ToUpper()))
+            // Verifica se há veículos estacionados
+            if (!veiculos.Any())
             {
-                Console.WriteLine("Digite a quantidade de horas que o veículo permaneceu estacionado:");
-
-                // TODO: Pedir para o usuário digitar a quantidade de horas que o veículo permaneceu estacionado,
-                // TODO: Realizar o seguinte cálculo: "precoInicial + precoPorHora * horas" para a variável valorTotal                
-                // *IMPLEMENTE AQUI*
-                int horas = 0;
-                decimal valorTotal = 0; 
-
-                // TODO: Remover a placa digitada da lista de veículos
-                // *IMPLEMENTE AQUI*
-
-                Console.WriteLine($"O veículo {placa} foi removido e o preço total foi de: R$ {valorTotal}");
+                Console.WriteLine("Não há veículos estacionados para remover.");
+                return; // Sai do método se não houver veículos
             }
-            else
+
+            // Exibe a lista de veículos com numeração
+            Console.WriteLine("Selecione o número correspondente ao veículo que deseja remover:");
+            for (int i = 0; i < veiculos.Count; i++)
             {
-                Console.WriteLine("Desculpe, esse veículo não está estacionado aqui. Confira se digitou a placa corretamente");
+                Console.WriteLine($"{i + 1} - {veiculos[i]}"); // Exibe o índice + 1 e a placa // metodo obtido com ajuda em pesquisa google
             }
+
+            // Solicita ao usuário que digite o número correspondente à placa
+            Console.Write("Digite o número da placa: ");
+            bool indiceValido = int.TryParse(Console.ReadLine(), out int indiceSelecionado);
+
+            // Verifica se a entrada é válida e se está dentro da faixa da lista
+            if (!indiceValido || indiceSelecionado < 1 || indiceSelecionado > veiculos.Count)
+            {
+                Console.WriteLine("Opção inválida.");
+                return; // Sai do método se a seleção for inválida
+            }
+
+            // Recupera a placa selecionada com base no índice
+            string placaSelecionada = veiculos[indiceSelecionado - 1];
+
+            // Confirma com o usuário se deseja realmente remover essa placa
+            Console.WriteLine($"Você selecionou a placa: {placaSelecionada}. Deseja continuar? (s/n)");
+            string confirmacao = Console.ReadLine()?.Trim().ToLower(); // Lê e trata a resposta
+
+            // Se o usuário não confirmar com "s", cancela a remoção
+            if (confirmacao != "s")
+            {
+                Console.WriteLine("Remoção cancelada.");
+                return;
+            }
+
+            // Solicita ao usuário a quantidade de horas que o veículo ficou estacionado
+            Console.Write("Digite quantas horas o veículo permaneceu estacionado: ");
+            bool entradaHorasValida = int.TryParse(Console.ReadLine(), out int horas);
+
+            // Verificar se a quantidade de horas é válida (inteiro positivo)
+            if (!entradaHorasValida || horas < 0)
+            {
+                Console.WriteLine("Quantidade de horas inválida.");
+                return;
+            }
+
+            // Calcular o valor total a pagar:  Entrada +  horas
+            decimal valorTotal = precoInicial + (precoPorHora * horas);
+
+            // Remover a placa da lista 
+            veiculos.RemoveAt(indiceSelecionado - 1);
+
+            // Exibi ao operador sobre a remoção e o valor a ser cobrado
+            Console.WriteLine($"O veículo {placaSelecionada} foi removido e o preço total foi de: R$ {valorTotal}");
         }
+
+
 
         public void ListarVeiculos()
         {
@@ -55,8 +102,11 @@ namespace DesafioFundamentos.Models
             if (veiculos.Any())
             {
                 Console.WriteLine("Os veículos estacionados são:");
-                // TODO: Realizar um laço de repetição, exibindo os veículos estacionados
-                // *IMPLEMENTE AQUI*
+
+                foreach (var placa in veiculos)
+                {
+                    Console.WriteLine(placa);
+                }
             }
             else
             {
@@ -65,3 +115,7 @@ namespace DesafioFundamentos.Models
         }
     }
 }
+
+
+
+
